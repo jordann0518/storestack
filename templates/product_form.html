@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if product else 'Add' }} product &mdash; storestack{% endblock %}
+{% block content %}
+<h1>{{ 'Edit product' if product else 'Add product' }}</h1>
+
+<div class="card">
+  <form method="post">
+    <div class="field-row">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" name="name" required value="{{ form.get('name', '') }}">
+      </div>
+      <div class="field">
+        <label for="sku">SKU</label>
+        <input id="sku" name="sku" required value="{{ form.get('sku', '') }}">
+      </div>
+    </div>
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="2">{{ form.get('description', '') }}</textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="price">Price ($)</label>
+        <input id="price" name="price" required inputmode="decimal"
+               value="{{ form.get('price', ('%.2f' % (product.price_cents / 100)) if product else '') }}">
+      </div>
+      <div class="field">
+        <label for="cost">Cost ($)</label>
+        <input id="cost" name="cost" required inputmode="decimal"
+               value="{{ form.get('cost', ('%.2f' % (product.cost_cents / 100)) if product else '') }}">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="quantity">Quantity on hand</label>
+        <input id="quantity" name="quantity" type="number" min="0" required
+               value="{{ form.get('quantity', product.quantity if product else 0) }}">
+      </div>
+      <div class="field">
+        <label for="category">Category</label>
+        <input id="category" name="category" value="{{ form.get('category', '') }}">
+      </div>
+    </div>
+    <div class="field">
+      <label for="vendor_id">Vendor</label>
+      <select id="vendor_id" name="vendor_id">
+        <option value="">— none —</option>
+        {% for v in vendors %}
+        <option value="{{ v.id }}"
+          {% if (form.get('vendor_id') and form.get('vendor_id')|int == v.id) or (product and product.vendor_id == v.id) %}selected{% endif %}>
+          {{ v.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn" type="submit">Save product</button>
+    <a class="btn secondary" href="{{ url_for('products') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

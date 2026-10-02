@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Import products &mdash; storestack{% endblock %}
+{% block content %}
+<h1>Import products from CSV</h1>
+
+<div class="card">
+  <p>Upload a CSV with these columns. Rows are matched by <strong>SKU</strong>:
+  existing SKUs are updated, new ones are created.</p>
+  <p class="muted"><code>name, sku, price, cost, quantity</code> are required.
+  <code>description, category, vendor</code> are optional
+  (<code>vendor</code> matches an existing vendor by name).</p>
+  <form method="post" enctype="multipart/form-data">
+    <div class="field">
+      <label for="file">CSV file</label>
+      <input id="file" name="file" type="file" accept=".csv" required>
+    </div>
+    <button class="btn" type="submit">Import</button>
+    <a class="btn secondary" href="{{ url_for('products') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

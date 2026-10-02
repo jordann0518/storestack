@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Sales history &mdash; storestack{% endblock %}
+{% block content %}
+<h1>Sales history</h1>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Sale #</th><th>Date (UTC)</th><th>Payment</th>
+          <th class="num">Lines</th><th class="num">Total</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for s in sales %}
+      <tr>
+        <td><strong>#{{ s.id }}</strong></td>
+        <td class="muted">{{ s.created_at[:16].replace('T', ' ') }}</td>
+        <td>{{ s.payment_method }}</td>
+        <td class="num">{{ s.line_count }}</td>
+        <td class="num">{{ cents(s.total_cents) }}</td>
+        <td class="num"><a class="btn small secondary" href="{{ url_for('receipt', sale_id=s.id) }}">Receipt</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No sales recorded yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

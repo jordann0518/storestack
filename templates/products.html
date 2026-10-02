@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Inventory &mdash; storestack{% endblock %}
+{% block content %}
+<h1>Inventory</h1>
+
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('product_new') }}">+ Add product</a>
+  <a class="btn secondary" href="{{ url_for('products_import') }}">Import CSV</a>
+  <span class="spacer"></span>
+  <a class="btn secondary" href="{{ url_for('products_export') }}">Export CSV</a>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th><th>SKU</th><th>Category</th><th>Vendor</th>
+        <th class="num">Price</th><th class="num">Cost</th><th class="num">Margin</th>
+        <th class="num">Qty</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><strong>{{ p.name }}</strong></td>
+        <td class="muted">{{ p.sku }}</td>
+        <td>{{ p.category or '&mdash;' }}</td>
+        <td>{{ p.vendor_name or '&mdash;' }}</td>
+        <td class="num">{{ cents(p.price_cents) }}</td>
+        <td class="num">{{ cents(p.cost_cents) }}</td>
+        <td class="num">{{ "%.1f"|format(p.margin_pct) }}%</td>
+        <td class="num">
+          {% if p.quantity == 0 %}<span class="badge warn">out</span>
+          {% else %}{{ p.quantity }}{% endif %}
+        </td>
+        <td class="num" style="white-space: nowrap;">
+          <form class="inline-form" method="post" action="{{ url_for('cart_add', product_id=p.id) }}">
+            <input type="hidden" name="quantity" value="1">
+            <button class="btn small secondary" type="submit" title="Add one to cart">Cart</button>
+          </form>
+          <a class="btn small secondary" href="{{ url_for('product_edit', product_id=p.id) }}">Edit</a>
+          <form class="inline-form" method="post" action="{{ url_for('product_delete', product_id=p.id) }}"
+                onsubmit="return confirm('Remove {{ p.name|escape }} from inventory?');">
+            <button class="btn small danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="9" class="muted">No products yet. Add one or import a CSV.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Vendors &mdash; storestack{% endblock %}
+{% block content %}
+<h1>Vendors</h1>
+
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('vendor_new') }}">+ Add vendor</a>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Vendor</th><th>Contact</th><th class="num">Units sold</th>
+          <th class="num">Revenue</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for v, totals in vendors %}
+      <tr>
+        <td><a href="{{ url_for('vendor_detail', vendor_id=v.id) }}"><strong>{{ v.name }}</strong></a></td>
+        <td class="muted">{{ v.contact or '&mdash;' }}</td>
+        <td class="num">{{ totals.units_sold }}</td>
+        <td class="num">{{ cents(totals.revenue_cents) }}</td>
+        <td class="num" style="white-space: nowrap;">
+          <a class="btn small secondary" href="{{ url_for('vendor_edit', vendor_id=v.id) }}">Edit</a>
+          <form class="inline-form" method="post" action="{{ url_for('vendor_delete', vendor_id=v.id) }}"
+                onsubmit="return confirm('Delete {{ v.name|escape }}?');">
+            <button class="btn small danger" type="submit">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No vendors yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

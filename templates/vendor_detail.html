@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ vendor.name }} &mdash; storestack{% endblock %}
+{% block content %}
+<h1>{{ vendor.name }}</h1>
+
+<div class="card">
+  <p class="muted">
+    {% if vendor.contact %}Contact: {{ vendor.contact }}<br>{% endif %}
+    {% if vendor.email %}Email: {{ vendor.email }}<br>{% endif %}
+    {% if vendor.phone %}Phone: {{ vendor.phone }}<br>{% endif %}
+    {% if vendor.notes %}{{ vendor.notes }}{% endif %}
+  </p>
+  <div class="stats">
+    <div class="stat"><div class="label">Units sold</div><div class="value">{{ totals.units_sold }}</div></div>
+    <div class="stat"><div class="label">Revenue</div><div class="value">{{ cents(totals.revenue_cents) }}</div></div>
+    <div class="stat"><div class="label">Active products</div><div class="value">{{ products|length }}</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Products from this vendor</h2>
+  <table>
+    <thead><tr><th>Product</th><th>SKU</th><th class="num">Price</th><th class="num">Qty</th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><strong>{{ p.name }}</strong></td>
+        <td class="muted">{{ p.sku }}</td>
+        <td class="num">{{ cents(p.price_cents) }}</td>
+        <td class="num">{{ p.quantity }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No active products from this vendor.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<a class="btn secondary" href="{{ url_for('vendors') }}">&larr; Back to vendors</a>
+{% endblock %}

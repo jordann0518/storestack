@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Checkout &mdash; storestack{% endblock %}
+{% block content %}
+<h1>Checkout</h1>
+
+<div class="card">
+  <h2>Current sale</h2>
+  {% if lines %}
+  <table>
+    <thead><tr><th>Item</th><th class="num">Price</th><th class="num">Qty</th>
+        <th class="num">Line total</th><th></th></tr></thead>
+    <tbody>
+      {% for line in lines %}
+      <tr>
+        <td><strong>{{ line.product.name }}</strong></td>
+        <td class="num">{{ cents(line.product.price_cents) }}</td>
+        <td class="num">{{ line.qty }}</td>
+        <td class="num">{{ cents(line.line_total) }}</td>
+        <td class="num">
+          <form class="inline-form" method="post" action="{{ url_for('cart_remove', product_id=line.product.id) }}">
+            <button class="btn small danger" type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="3"><strong>Total</strong></td>
+        <td class="num"><strong>{{ cents(total) }}</strong></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <form method="post" action="{{ url_for('checkout_complete') }}">
+    <div class="field-row" style="margin-top: 1rem;">
+      <div class="field">
+        <label for="payment_method">Payment method</label>
+        <select id="payment_method" name="payment_method">
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="check">Check</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="note">Note (optional)</label>
+        <input id="note" name="note" placeholder="e.g. layaway, discount reason">
+      </div>
+    </div>
+    <button class="btn" type="submit">Complete sale &mdash; {{ cents(total) }}</button>
+  </form>
+  {% else %}
+  <p class="muted">Cart is empty. Add items below.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Add items</h2>
+  <table>
+    <thead><tr><th>Product</th><th class="num">Price</th><th class="num">In stock</th><th></th></tr></thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td><strong>{{ p.name }}</strong> <span class="muted">({{ p.sku }})</span></td>
+        <td class="num">{{ cents(p.price_cents) }}</td>
+        <td class="num">{{ p.quantity }}</td>
+        <td class="num">
+          {% if p.quantity > 0 %}
+          <form class="inline-form" method="post" action="{{ url_for('cart_add', product_id=p.id) }}">
+            <input type="number" name="quantity" value="1" min="1" max="{{ p.quantity }}"
+                   style="width: 4rem; padding: 0.3rem; border: 1px solid var(--line); border-radius: 6px;">
+            <button class="btn small" type="submit">Add</button>
+          </form>
+          {% else %}
+          <span class="badge warn">out of stock</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

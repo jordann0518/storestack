@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Dashboard &mdash; storestack{% endblock %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="stats">
+  <div class="stat">
+    <div class="label">Lifetime revenue</div>
+    <div class="value">{{ cents(totals.lifetime_revenue) }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Completed sales</div>
+    <div class="value">{{ totals.sale_count }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Units on hand</div>
+    <div class="value">{{ totals.units_on_hand }}</div>
+  </div>
+  <div class="stat">
+    <div class="label">Inventory cost</div>
+    <div class="value">{{ cents(totals.inventory_cost) }}</div>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-top: 1.25rem;">
+  <div class="card">
+    <h2>Revenue &mdash; last 30 days</h2>
+    <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+  </div>
+  <div class="card">
+    <h2>Top products by revenue</h2>
+    <div class="chart-box"><canvas id="topChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Low-stock alerts
+    <span class="badge warn">{{ low_stock|length }} item{{ 's' if low_stock|length != 1 }}</span>
+  </h2>
+  <form class="inline-form" method="post" action="{{ url_for('set_threshold') }}">
+    <label for="threshold" class="muted" style="font-size: 0.9rem;">Alert when quantity is at or below</label>
+    <input type="number" id="threshold" name="threshold" value="{{ threshold }}" min="0"
+           style="width: 5rem; padding: 0.35rem 0.5rem; border: 1px solid var(--line); border-radius: 6px;">
+    <button class="btn small secondary" type="submit">Save</button>
+  </form>
+  {% if low_stock %}
+  <ul class="alert-list" style="margin-top: 0.75rem;">
+    {% for p in low_stock %}
+    <li>
+      <span><strong>{{ p.name }}</strong> <span class="muted">({{ p.sku }})</span></span>
+      <span class="badge warn">{{ p.quantity }} left</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">All stocked up &mdash; nothing at or below the threshold.</p>
+  {% endif %}
+</div>
+
+<script>
+const revenueLabels = {{ revenue_labels|safe }};
+const revenueValues = {{ revenue_values|safe }};
+new Chart(document.getElementById('revenueChart'), {
+  type: 'line',
+  data: { labels: revenueLabels,
+    datasets: [{ label: 'Revenue ($)', data: revenueValues,
+                 borderColor: '#8a5a2b', backgroundColor: 'rgba(138,90,43,0.12)',
+                 fill: true, tension: 0.25 }] },
+  options: { responsive: true, maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('topChart'), {
+  type: 'bar',
+  data: {
+    labels: [{% for p in top_products %}{{ p.product_name|tojson }}{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets: [{ label: 'Revenue ($)',
+      data: [{% for p in top_products %}{{ (p.revenue_cents / 100)|round(2) }}{% if not loop.last %},{% endif %}{% endfor %}],
+      backgroundColor: 'rgba(138,90,43,0.65)' }]
+  },
+  options: { responsive: true, maintainAspectRatio: false,
+    indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}
