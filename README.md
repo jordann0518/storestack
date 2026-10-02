@@ -1,5 +1,7 @@
 # storestack
 
+**Live demo:** https://jordann0518.pythonanywhere.com
+
 A full-stack small-retail management web app: inventory, vendors, point-of-sale
 checkout, and a sales analytics dashboard. Built with **Python, Flask, and
 SQLite** — no frontend framework, no ORM, just clean server-rendered pages and
